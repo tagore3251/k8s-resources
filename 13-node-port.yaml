@@ -1,0 +1,33 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-np
+spec:
+  type: NodePort # External People Can Access
+  selector: # labels are used as selectors
+    project: expense
+    component: backend
+    environment: dev
+    version: "1.0.0"
+    demo: np
+  ports:
+  - protocol: TCP
+    port: 80 # service port
+    targetPort: 80
+    nodePort: 30007
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: backend-np
+  labels:
+    project: expense
+    component: backend
+    environment: dev
+    version: "1.0.0"
+    demo: np
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    
