@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  # labels of deployment resource
+  labels:
+    app: nginx
+    tier: frontend
+    purpose: deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+      tier: frontend
+      purpose: deployment
+  template:
+    metadata:
+      labels:
+        app: nginx
+        tier: frontend
+        purpose: deployment
+    spec:
+      containers:
+      - name: nginx
+        image: tagore8661/deployment:1.0
+        ports:
+        - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx
+spec:
+  type: LoadBalancer
+  selector: # labels are used as selectors
+    app: nginx
+    tier: frontend
+    purpose: deployment
+  ports:
+  - protocol: TCP
+    port: 80 # service port
+    targetPort: 80
+    nodePort: 30007
