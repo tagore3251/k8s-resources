@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-static
+spec:
+  capacity:
+    storage: 5Gi # This One is Dummy b/c it will increase automatically..
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce # b/c of we are attaching to pod
+  storageClassName: "" # This is Empty in Static Provision
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-0bde995b741f0197b # Enter Manually Created EFS Volume ID
