@@ -1,0 +1,54 @@
+# For Deployment it is not Mandatory to Create PV ,PVC but StateFulSet it is Mandatory to Create Pv ,PVC
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-headless
+  labels:
+    app: nginx
+    demo: statefulset
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None # if clusterIP: None it is called headless service
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+      demo: statefulset # has to match .spec.template.metadata.labels
+  serviceName: "nginx-headless"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: nginx
+        demo: statefulset # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: nginx
+        image: registry.k8s.io/nginx-slim:0.24
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  # Instead of creating a PVC resource, you can directly provide in statefulset
+  volumeClaimTemplates: # == PVC
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "ebs-sc" # Volumes -> 03-ebs-sc.yaml
+      resources:
+        requests:
+          storage: 1Gi
